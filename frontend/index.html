@@ -45,6 +45,11 @@
                     <div class="gauge-label">km/h</div>
                 </div>
             </div>
+            
+            <div class="climate-container">
+                <div class="climate-label">Climate Temp</div>
+                <div class="climate-value"><span id="val-climate">24</span>&deg;C</div>
+            </div>
         </div>
 
         <!-- Bottom Right: CAN Interface -->
@@ -58,12 +63,17 @@
                     <li><code>0x102</code>: Throttle (0 to 100)</li>
                     <li><code>0x200</code>: Speed (0 to 250)</li>
                     <li><code>0x300</code>: Gear (0=P, 1=R, 2=N, 3=D)</li>
+                    <li><code>0x400</code>: Climate Temp (18 to 30)</li>
                 </ul>
             </div>
             <div class="can-input">
                 <input type="text" id="can-id" placeholder="ID (e.g. 0x100)" />
                 <input type="text" id="can-data" placeholder="Data (e.g. 45)" />
-                <button id="btn-send">Send CAN</button>
+                <button id="btn-send">Send</button>
+            </div>
+            <div class="replay-controls" style="margin-top: 10px; display: flex; gap: 10px;">
+                <button id="btn-replay-start" style="flex: 1; background: var(--accent-green); color: #000; border: none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer;">▶ Play Log</button>
+                <button id="btn-replay-stop" style="flex: 1; background: var(--accent-red); color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer;">⏹ Stop</button>
             </div>
             <div class="can-log" id="can-log">
                 <!-- Logs will appear here -->

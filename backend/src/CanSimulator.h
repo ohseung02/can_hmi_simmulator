@@ -2,7 +2,6 @@
 
 #include <string>
 #include <mutex>
-#include <nlohmann/json.hpp> // Wait, we need json. Crow has its own JSON, or we can use nlohmann. Crow's JSON is crow::json. Let's use crow::json in main.cpp, but here we can just pass strings or use simple structs.
 
 struct VehicleState {
     int steeringAngle = 0; // -180 to 180
@@ -11,6 +10,7 @@ struct VehicleState {
     int speed = 0; // 0 to 250 km/h
     int rpm = 800; // 0 to 8000
     std::string gear = "P"; // P, R, N, D
+    int climateTemp = 24; // 18 to 30 C
 };
 
 class CanSimulator {

@@ -29,7 +29,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(Crow)
 
-add_executable(CanServer src/main.cpp src/CanSimulator.cpp)
+add_executable(CanServer src/main.cpp src/CanSimulator.cpp src/SerialReader.cpp src/LogReplayer.cpp)
 target_include_directories(CanServer PRIVATE src)
 target_link_libraries(CanServer PRIVATE Crow::Crow)
 

@@ -11,10 +11,13 @@ const throttleBar = document.getElementById('throttle-bar');
 const valRpm = document.getElementById('val-rpm');
 const valSpeed = document.getElementById('val-speed');
 const valGear = document.getElementById('val-gear');
+const valClimate = document.getElementById('val-climate');
 
 const canIdInput = document.getElementById('can-id');
 const canDataInput = document.getElementById('can-data');
 const btnSend = document.getElementById('btn-send');
+const btnReplayStart = document.getElementById('btn-replay-start');
+const btnReplayStop = document.getElementById('btn-replay-stop');
 const canLog = document.getElementById('can-log');
 const connStatus = document.getElementById('conn-status');
 
@@ -62,6 +65,9 @@ function updateUI(state) {
     valSpeed.textContent = state.speed;
     valRpm.textContent = state.rpm;
     valGear.textContent = state.gear;
+    if (state.climateTemp !== undefined) {
+        valClimate.textContent = state.climateTemp;
+    }
 }
 
 function logMsg(msg, isTx = false) {
@@ -87,6 +93,20 @@ btnSend.addEventListener('click', () => {
         logMsg(`TX: ID ${id} Data ${data}`, true);
     } else {
         logMsg("System: WebSocket not connected");
+    }
+});
+
+btnReplayStart.addEventListener('click', () => {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ action: "replay_start" }));
+        logMsg("System: Starting Replay");
+    }
+});
+
+btnReplayStop.addEventListener('click', () => {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ action: "replay_stop" }));
+        logMsg("System: Stopped Replay");
     }
 });
 

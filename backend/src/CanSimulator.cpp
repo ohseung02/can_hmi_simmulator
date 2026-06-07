@@ -61,6 +61,10 @@ bool CanSimulator::processMessage(const std::string& canIdStr, const std::string
             else if (data == 3) m_state.gear = "D";
             changed = true;
             break;
+        case 0x400: // Climate Temp
+            m_state.climateTemp = data;
+            changed = true;
+            break;
         default:
             break;
     }
