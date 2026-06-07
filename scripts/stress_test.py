@@ -30,27 +30,36 @@ async def stress_test():
             start_time = time.time()
             
             while True:
-                # Spam 0x100 (High Priority) and 0x400 (Low Priority)
-                # We alternate them quickly to simulate simultaneous arrival
-                
-                # 1. High Priority (Steering Angle: sweeps from -180 to 180)
-                steer_val = -180 + (msg_count % 360)
-                payload_high = {"canId": "0x100", "data": str(steer_val)}
-                await websocket.send(json.dumps(payload_high))
-                
-                # 2. Low Priority (Climate Temp: sweeps from 18 to 30)
-                temp_val = 18 + (msg_count % 12)
-                payload_low = {"canId": "0x400", "data": str(temp_val)}
-                await websocket.send(json.dumps(payload_low))
+                # Spam all 6 CAN IDs
+                # 1. High Priority (Steering Angle)
+                await websocket.send(json.dumps({"canId": "0x100", "data": str(-180 + (msg_count % 360))}))
+                # 2. Brake
+                await websocket.send(json.dumps({"canId": "0x101", "data": str(msg_count % 100)}))
+                # 3. Throttle
+                await websocket.send(json.dumps({"canId": "0x102", "data": str((msg_count+50) % 100)}))
+                # 4. Speed
+                await websocket.send(json.dumps({"canId": "0x200", "data": str(msg_count % 250)}))
+                # 5. Gear
+                await websocket.send(json.dumps({"canId": "0x300", "data": str(msg_count % 4)}))
+                # 6. Lowest Priority (Climate Temp)
+                await websocket.send(json.dumps({"canId": "0x400", "data": str(18 + (msg_count % 12))}))
                 
                 # Yield to the event loop so we don't lock up entirely, but keep it very fast
                 await asyncio.sleep(0.0005)
                 
-                msg_count += 2
+                msg_count += 6
                 
                 # Small sleep to yield to event loop but blast as fast as possible
                 # 0.0001 sec = 10,000 max msgs/sec
                 await asyncio.sleep(0.0001)
+                
+                if msg_count >= 96:
+                    elapsed = time.time() - start_time
+                    rate = msg_count / elapsed
+                    print(f"Sent {msg_count} messages. Rate: {rate:.2f} msg/sec. Stopping burst to let queue drain.")
+                    # Sleep indefinitely so the websocket stays open and server doesn't clean up
+                    while True:
+                        await asyncio.sleep(1)
                 
                 if msg_count % 5000 == 0:
                     elapsed = time.time() - start_time

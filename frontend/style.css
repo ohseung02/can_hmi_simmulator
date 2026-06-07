@@ -315,3 +315,31 @@ h2 {
 .connected {
     color: var(--accent-green) !important;
 }
+
+.stream-item {
+    background: var(--accent-blue);
+    color: #fff;
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 12px;
+    animation: fadeInOut 2s forwards;
+    white-space: nowrap;
+}
+
+.stream-item.high-priority {
+    background: var(--accent-green);
+    color: #000;
+    font-weight: bold;
+}
+
+.stream-item.low-priority {
+    background: var(--accent-red);
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: scale(0.8); }
+    10% { opacity: 1; transform: scale(1); }
+    80% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0.9); }
+}

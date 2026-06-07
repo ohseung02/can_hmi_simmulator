@@ -44,18 +44,81 @@ function connect() {
 
     ws.onmessage = (event) => {
         try {
-            const data = JSON.parse(event.data);
-            if (data.type === "STATE") {
-                latestState = data;
-                updateUI(data);
+            const msg = JSON.parse(event.data);
+            if (msg.type === "STATE") {
+                latestState = msg;
+                updateUI(msg);
                 frameCount++;
-            } else if (data.type === "STATISTICS") {
-                updateStats(data.data);
+                
+                // Update Queue Visualization
+                if (msg.queueSize !== undefined && msg.queueTotal !== undefined) {
+                    updateQueueVisualizer(msg.queueSize, msg.queueTotal, msg.queueCounts);
+                }
+                
+                // Update Processed Stream
+                if (msg.recentPops && msg.recentPops.length > 0) {
+                    updateStreamVisualizer(msg.recentPops);
+                }
+            } else if (msg.type === "STATISTICS") {
+                updateStats(msg.data);
             }
         } catch (e) {
             console.error("Invalid JSON", event.data);
         }
     };
+}
+
+function updateQueueVisualizer(queueSize, queueTotal, queueCounts) {
+    const queueText = document.getElementById('queue-count-text');
+    const queueBar = document.getElementById('queue-progress-bar');
+    const queueDetails = document.getElementById('queue-details');
+    
+    if (queueText) queueText.textContent = `${queueSize} / ${queueTotal}`;
+    if (queueBar) {
+        const pct = Math.min((queueSize / queueTotal) * 100, 100);
+        queueBar.style.width = `${pct}%`;
+        if (pct > 80) queueBar.style.background = 'var(--accent-red)';
+        else if (pct > 50) queueBar.style.background = '#f39c12';
+        else queueBar.style.background = 'var(--accent-green)';
+    }
+    
+    if (queueDetails && queueCounts) {
+        queueDetails.innerHTML = '';
+        const sortedIds = Object.keys(queueCounts).sort();
+        sortedIds.forEach(id => {
+            const count = queueCounts[id];
+            const div = document.createElement('div');
+            div.style.background = 'rgba(0,0,0,0.4)';
+            div.style.padding = '4px 8px';
+            div.style.borderRadius = '4px';
+            div.style.border = '1px solid rgba(255,255,255,0.1)';
+            div.innerHTML = `<span style="color:var(--accent-blue)">${id}</span>: ${count}`;
+            queueDetails.appendChild(div);
+        });
+    }
+}
+
+function updateStreamVisualizer(recentPops) {
+    const streamContainer = document.getElementById('processed-stream');
+    if (!streamContainer) return;
+    
+    recentPops.forEach(id => {
+        const span = document.createElement('span');
+        span.className = 'stream-item';
+        
+        // Highlight high and low priority
+        if (id === '0x100' || id === '0x101') span.classList.add('high-priority');
+        else if (id === '0x300' || id === '0x400') span.classList.add('low-priority');
+        
+        span.textContent = `[${id}]`;
+        
+        streamContainer.insertBefore(span, streamContainer.firstChild);
+        
+        // Remove old elements to keep memory low (keep max 50)
+        while (streamContainer.children.length > 50) {
+            streamContainer.removeChild(streamContainer.lastChild);
+        }
+    });
 }
 
 // FPS calculation loop

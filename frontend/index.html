@@ -40,21 +40,21 @@
             </div>
 
             <!-- Priority Stats Table -->
-            <div class="stats-container" style="margin-top: 20px;">
+            <div class="priority-stats-card panel glass-effect">
                 <h3>CAN Priority Stats</h3>
-                <table class="stats-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Priority</th>
-                            <th>Value</th>
-                            <th>Rate (Hz)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="stats-tbody">
-                        <!-- Populated by JS -->
-                    </tbody>
-                </table>
+                <div class="table-container">
+                    <table id="stats-table">
+                        <thead>
+                            <tr>
+                                <th>Priority (CAN ID)</th>
+                                <th>Messages Processed</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stats-tbody">
+                            <!-- Stats injected via JS -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -78,6 +78,25 @@
             <div class="climate-container">
                 <div class="climate-label">Climate Temp</div>
                 <div class="climate-value"><span id="val-climate">24</span>&deg;C</div>
+            </div>
+
+            <!-- NEW: Arbitration Buffer Visualizer -->
+            <div class="queue-panel panel glass-effect" style="margin-top: 20px;">
+                <h3>CAN Arbitration Buffer <span id="queue-count-text" style="font-size: 0.8em; float: right;">0 / 100</span></h3>
+                <div class="queue-progress-container" style="background: rgba(255,255,255,0.1); border-radius: 8px; height: 10px; margin: 10px 0; overflow: hidden;">
+                    <div id="queue-progress-bar" style="width: 0%; height: 100%; background: var(--accent-green); transition: width 0.1s, background 0.3s;"></div>
+                </div>
+                <div id="queue-details" class="queue-details" style="display: flex; flex-wrap: wrap; gap: 10px; font-size: 0.9em; margin-top: 10px;">
+                    <!-- Dynamically populated ID counts -->
+                </div>
+            </div>
+
+            <!-- NEW: Processed Stream Visualizer -->
+            <div class="stream-panel panel glass-effect" style="margin-top: 20px;">
+                <h3>Recently Processed (Out of Queue)</h3>
+                <div id="processed-stream" style="display: flex; gap: 5px; flex-wrap: wrap; margin-top: 10px; height: 60px; overflow: hidden; align-content: flex-start;">
+                    <!-- Stream items injected via JS -->
+                </div>
             </div>
         </div>
 

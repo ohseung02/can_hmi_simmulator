@@ -38,10 +38,14 @@ void CanSimulator::workerLoop() {
             
             msg = m_queue.top();
             m_queue.pop();
+            m_queueCounts[msg.id]--;
+            if (m_queueCounts[msg.id] <= 0) {
+                m_queueCounts.erase(msg.id);
+            }
         }
 
-        // Simulate CAN bus bandwidth limit (~500 msgs/sec max) by taking 2ms to "transmit" each message
-        std::this_thread::sleep_for(std::chrono::milliseconds(2));
+        // Simulate CAN bus bandwidth limit by taking 1 second to "transmit" each message
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         // Process the message (State update)
         std::lock_guard<std::mutex> stateLock(m_stateMutex);
@@ -50,6 +54,11 @@ void CanSimulator::workerLoop() {
         char hexId[10];
         snprintf(hexId, sizeof(hexId), "0x%X", msg.id);
         m_stats[std::string(hexId)]++;
+        
+        m_recentPops.push_back(msg.id);
+        if (m_recentPops.size() > 100) {
+            m_recentPops.erase(m_recentPops.begin());
+        }
 
         switch (msg.id) {
             case 0x100: // Steering
@@ -98,15 +107,15 @@ bool CanSimulator::processMessage(const std::string& canIdStr, const std::string
     {
         std::lock_guard<std::mutex> lock(m_queueMutex);
         // Prevent queue from consuming infinite memory if flooded indefinitely
-        if (m_queue.size() < 10000) {
+        if (m_queue.size() < 100) {
             m_queue.push({id, data});
+            m_queueCounts[id]++;
             m_cv.notify_one();
         }
     }
     
     return true;
 }
-
 
 std::unordered_map<std::string, int> CanSimulator::popStats() {
     std::lock_guard<std::mutex> lock(m_stateMutex);
@@ -118,4 +127,16 @@ std::unordered_map<std::string, int> CanSimulator::popStats() {
 VehicleState CanSimulator::getState() const {
     std::lock_guard<std::mutex> lock(m_stateMutex);
     return m_state;
+}
+
+std::pair<size_t, std::unordered_map<int, int>> CanSimulator::getQueueInfo() const {
+    std::lock_guard<std::mutex> lock(m_queueMutex);
+    return {m_queue.size(), m_queueCounts};
+}
+
+std::vector<int> CanSimulator::popRecentPops() {
+    std::lock_guard<std::mutex> lock(m_stateMutex);
+    std::vector<int> pops = std::move(m_recentPops);
+    m_recentPops.clear();
+    return pops;
 }

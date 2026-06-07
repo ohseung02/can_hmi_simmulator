@@ -43,6 +43,12 @@ public:
     
     VehicleState getState() const;
     std::unordered_map<std::string, int> popStats();
+    
+    // Returns {totalSize, {id -> count}}
+    std::pair<size_t, std::unordered_map<int, int>> getQueueInfo() const;
+    
+    // Returns recently popped IDs and clears the buffer
+    std::vector<int> popRecentPops();
 
 private:
     void workerLoop();
@@ -50,9 +56,11 @@ private:
     VehicleState m_state;
     std::unordered_map<std::string, int> m_stats;
     mutable std::mutex m_stateMutex;
+    std::vector<int> m_recentPops;
 
     std::priority_queue<CanMsg> m_queue;
-    std::mutex m_queueMutex;
+    std::unordered_map<int, int> m_queueCounts;
+    mutable std::mutex m_queueMutex;
     std::condition_variable m_cv;
     std::thread m_worker;
     std::atomic<bool> m_running{false};

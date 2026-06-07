@@ -37,6 +37,29 @@ int main() {
         res["gear"] = state.gear;
         res["climateTemp"] = state.climateTemp;
         
+        // Add Queue Info
+        auto qInfo = canSim.getQueueInfo();
+        res["queueSize"] = qInfo.first;
+        res["queueTotal"] = 100;
+        
+        crow::json::wvalue qCounts;
+        for (const auto& kv : qInfo.second) {
+            char hexId[10];
+            snprintf(hexId, sizeof(hexId), "0x%X", kv.first);
+            qCounts[std::string(hexId)] = kv.second;
+        }
+        res["queueCounts"] = std::move(qCounts);
+
+        // Add Recent Pops
+        auto recentPops = canSim.popRecentPops();
+        crow::json::wvalue popsJson = crow::json::wvalue::list();
+        for (size_t i = 0; i < recentPops.size(); ++i) {
+            char hexId[10];
+            snprintf(hexId, sizeof(hexId), "0x%X", recentPops[i]);
+            popsJson[i] = std::string(hexId);
+        }
+        res["recentPops"] = std::move(popsJson);
+
         std::string broadcast_str = res.dump();
         
         for (auto u : users) {
