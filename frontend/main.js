@@ -21,6 +21,12 @@ const btnReplayStop = document.getElementById('btn-replay-stop');
 const canLog = document.getElementById('can-log');
 const connStatus = document.getElementById('conn-status');
 
+let frameCount = 0;
+let lastTime = performance.now();
+const valFps = document.getElementById('val-fps');
+const statsTbody = document.getElementById('stats-tbody');
+let latestState = {};
+
 function connect() {
     ws = new WebSocket(wsUrl);
 
@@ -40,12 +46,67 @@ function connect() {
         try {
             const data = JSON.parse(event.data);
             if (data.type === "STATE") {
+                latestState = data;
                 updateUI(data);
+                frameCount++;
+            } else if (data.type === "STATISTICS") {
+                updateStats(data.data);
             }
         } catch (e) {
             console.error("Invalid JSON", event.data);
         }
     };
+}
+
+// FPS calculation loop
+function updateFPS() {
+    const now = performance.now();
+    const elapsed = now - lastTime;
+    if (elapsed >= 1000) {
+        const fps = Math.round((frameCount * 1000) / elapsed);
+        if (valFps) valFps.textContent = fps;
+        frameCount = 0;
+        lastTime = now;
+    }
+    requestAnimationFrame(updateFPS);
+}
+requestAnimationFrame(updateFPS);
+
+function updateStats(stats) {
+    if (!statsTbody) return;
+    statsTbody.innerHTML = '';
+    
+    // Convert object to array for sorting
+    const statsArray = [];
+    for (const [id, rate] of Object.entries(stats)) {
+        // Priority is lower number = higher priority
+        const priority = parseInt(id, 16);
+        let value = "N/A";
+        
+        // Map ID to latest state value for display
+        if (id === "0x100") value = latestState.steering;
+        else if (id === "0x101") value = latestState.brake;
+        else if (id === "0x102") value = latestState.throttle;
+        else if (id === "0x200") value = latestState.speed;
+        else if (id === "0x300") value = latestState.gear;
+        else if (id === "0x400") value = latestState.climateTemp;
+
+        statsArray.push({ id, priority, value, rate });
+    }
+    
+    // Sort by priority (ascending)
+    statsArray.sort((a, b) => a.priority - b.priority);
+    
+    statsArray.forEach(stat => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><code>${stat.id}</code></td>
+            <td>${stat.priority}</td>
+            <td>${stat.value !== undefined ? stat.value : 'N/A'}</td>
+            <td style="color: var(--accent-green); font-weight: bold;">${stat.rate}</td>
+        `;
+        statsTbody.appendChild(tr);
+    });
 }
 
 function updateUI(state) {

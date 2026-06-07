@@ -8,24 +8,53 @@
 </head>
 <body>
     <div class="dashboard">
-        <!-- Top Left: Controls Indicator -->
+        <!-- Top Right: Performance Monitor -->
+        <div class="perf-monitor">
+            <div>FPS: <span id="val-fps">0</span></div>
+        </div>
+
+        <!-- Left: Driving Controls & Priority Table -->
         <div class="panel controls-panel">
-            <h2>Controls</h2>
+            <h2>Driving Controls</h2>
             <div class="steering-container">
-                <div id="steering-wheel" class="steering-wheel"></div>
+                <div class="steering-wheel" id="steering-wheel">
+                    <div class="steering-center"></div>
+                </div>
                 <div class="value-display">Steering: <span id="val-steering">0</span>&deg;</div>
             </div>
-            <div class="brake-container">
-                <div class="pedal-bg">
-                    <div id="brake-bar" class="pedal-fill brake-fill"></div>
+            
+            <div class="pedal-group">
+                <div class="brake-container">
+                    <div class="pedal-bg">
+                        <div id="brake-bar" class="pedal-fill brake-fill"></div>
+                    </div>
+                    <div class="value-display">Brake: <span id="val-brake">0</span>%</div>
                 </div>
-                <div class="value-display">Brake: <span id="val-brake">0</span>%</div>
+                
+                <div class="throttle-container">
+                    <div class="pedal-bg">
+                        <div id="throttle-bar" class="pedal-fill throttle-fill"></div>
+                    </div>
+                    <div class="value-display">Throttle: <span id="val-throttle">0</span>%</div>
+                </div>
             </div>
-            <div class="throttle-container">
-                <div class="pedal-bg">
-                    <div id="throttle-bar" class="pedal-fill throttle-fill"></div>
-                </div>
-                <div class="value-display">Throttle: <span id="val-throttle">0</span>%</div>
+
+            <!-- Priority Stats Table -->
+            <div class="stats-container" style="margin-top: 20px;">
+                <h3>CAN Priority Stats</h3>
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Priority</th>
+                            <th>Value</th>
+                            <th>Rate (Hz)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stats-tbody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
             </div>
         </div>
 

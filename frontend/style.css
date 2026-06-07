@@ -269,7 +269,41 @@ h2 {
     color: var(--text-secondary);
 }
 .log-entry.tx {
+    color: var(--accent-blue);
+}
+
+.perf-monitor {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-weight: bold;
     color: var(--accent-green);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stats-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 0.9em;
+}
+
+.stats-table th, .stats-table td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stats-table th {
+    color: var(--accent-blue);
+    font-weight: 600;
+}
+
+.stats-table tr:hover {
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .connection-status {

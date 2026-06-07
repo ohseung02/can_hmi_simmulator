@@ -23,6 +23,9 @@ int main() {
     std::unordered_set<crow::websocket::connection*> users;
 
     auto broadcastState = [&]() {
+        std::lock_guard<std::recursive_mutex> _(mtx);
+        if (users.empty()) return;
+
         VehicleState state = canSim.getState();
         crow::json::wvalue res;
         res["type"] = "STATE";
@@ -36,17 +39,52 @@ int main() {
         
         std::string broadcast_str = res.dump();
         
+        for (auto u : users) {
+            u->send_text(broadcast_str);
+        }
+    };
+
+    auto broadcastStats = [&]() {
         std::lock_guard<std::recursive_mutex> _(mtx);
+        if (users.empty()) return;
+
+        auto stats = canSim.popStats();
+        crow::json::wvalue res;
+        res["type"] = "STATISTICS";
+        
+        crow::json::wvalue statsJson;
+        for (const auto& pair : stats) {
+            statsJson[pair.first] = pair.second;
+        }
+        res["data"] = std::move(statsJson);
+        
+        std::string broadcast_str = res.dump();
+        
         for (auto u : users) {
             u->send_text(broadcast_str);
         }
     };
 
     auto onCanMessage = [&](const std::string& canId, const std::string& data) {
-        if (canSim.processMessage(canId, data)) {
+        canSim.processMessage(canId, data);
+    };
+
+    std::atomic<bool> serverRunning{true};
+
+    std::thread timer60Hz([&]() {
+        while (serverRunning) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(16));
             broadcastState();
         }
-    };
+    });
+
+    std::thread timer1Hz([&]() {
+        while (serverRunning) {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+            std::cout << "[DEBUG] timer1Hz tick. users size: " << users.size() << std::endl;
+            broadcastStats();
+        }
+    });
 
     // Start Serial reading
     serialReader.start(onCanMessage);
@@ -74,7 +112,11 @@ int main() {
           
           if (j.has("action")) {
               std::string action = j["action"].s();
-              if (action == "replay_start") {
+              if (action == "publisher_mode") {
+                  std::lock_guard<std::recursive_mutex> _(mtx);
+                  users.erase(&conn);
+                  CROW_LOG_INFO << "Connection switched to publisher_mode";
+              } else if (action == "replay_start") {
                   if (!logReplayer.isRunning()) {
                       logReplayer.loadLog("backend/drive_log.csv"); // relative path
                       logReplayer.start(onCanMessage);
@@ -91,11 +133,18 @@ int main() {
           }
       });
 
+    // Start CAN Simulator worker thread
+    canSim.start();
+
     std::cout << "Starting Server on port 18080..." << std::endl;
     app.port(18080).multithreaded().run();
 
-    // Cleanup
+    // Stop threads gracefully
+    serverRunning = false;
+    canSim.stop();
     serialReader.close();
     io.stop();
     if (asioThread.joinable()) asioThread.join();
+    if (timer60Hz.joinable()) timer60Hz.join();
+    if (timer1Hz.joinable()) timer1Hz.join();
 }

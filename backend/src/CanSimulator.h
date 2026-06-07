@@ -2,6 +2,12 @@
 
 #include <string>
 #include <mutex>
+#include <unordered_map>
+
+#include <queue>
+#include <thread>
+#include <atomic>
+#include <condition_variable>
 
 struct VehicleState {
     int steeringAngle = 0; // -180 to 180
@@ -13,17 +19,41 @@ struct VehicleState {
     int climateTemp = 24; // 18 to 30 C
 };
 
+struct CanMsg {
+    int id;
+    int data;
+    // priority_queue is a max-heap. We want lowest ID to be at the top.
+    // So if this.id > other.id, we return true (meaning this is "less" than other).
+    bool operator<(const CanMsg& other) const {
+        return id > other.id;
+    }
+};
+
 class CanSimulator {
 public:
     CanSimulator();
+    ~CanSimulator();
     
+    void start();
+    void stop();
+
     // Process a CAN message like "ID: 0x100, Data: 45"
-    // Returns true if state changed
+    // Returns true if state changed (Not used much directly now)
     bool processMessage(const std::string& canIdStr, const std::string& dataStr);
     
-    VehicleState getState();
+    VehicleState getState() const;
+    std::unordered_map<std::string, int> popStats();
 
 private:
+    void workerLoop();
+
     VehicleState m_state;
-    std::mutex m_mutex;
+    std::unordered_map<std::string, int> m_stats;
+    mutable std::mutex m_stateMutex;
+
+    std::priority_queue<CanMsg> m_queue;
+    std::mutex m_queueMutex;
+    std::condition_variable m_cv;
+    std::thread m_worker;
+    std::atomic<bool> m_running{false};
 };
