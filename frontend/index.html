@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAN Infotainment HMI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Top Left: Controls Indicator -->
+        <div class="panel controls-panel">
+            <h2>Controls</h2>
+            <div class="steering-container">
+                <div id="steering-wheel" class="steering-wheel"></div>
+                <div class="value-display">Steering: <span id="val-steering">0</span>&deg;</div>
+            </div>
+            <div class="brake-container">
+                <div class="pedal-bg">
+                    <div id="brake-bar" class="pedal-fill brake-fill"></div>
+                </div>
+                <div class="value-display">Brake: <span id="val-brake">0</span>%</div>
+            </div>
+            <div class="throttle-container">
+                <div class="pedal-bg">
+                    <div id="throttle-bar" class="pedal-fill throttle-fill"></div>
+                </div>
+                <div class="value-display">Throttle: <span id="val-throttle">0</span>%</div>
+            </div>
+        </div>
+
+        <!-- Center: HMI Cluster -->
+        <div class="panel center-panel">
+            <h2>HMI Cluster</h2>
+            <div class="cluster-gauges">
+                <div class="gauge rpm-gauge">
+                    <div class="gauge-value"><span id="val-rpm">800</span></div>
+                    <div class="gauge-label">RPM</div>
+                </div>
+                
+                <div class="gear-display" id="val-gear">P</div>
+                
+                <div class="gauge speed-gauge">
+                    <div class="gauge-value"><span id="val-speed">0</span></div>
+                    <div class="gauge-label">km/h</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Right: CAN Interface -->
+        <div class="panel can-panel">
+            <h2>CAN Interface</h2>
+            <div class="can-list">
+                <h3>Supported IDs</h3>
+                <ul>
+                    <li><code>0x100</code>: Steering (-180 to 180)</li>
+                    <li><code>0x101</code>: Brake (0 to 100)</li>
+                    <li><code>0x102</code>: Throttle (0 to 100)</li>
+                    <li><code>0x200</code>: Speed (0 to 250)</li>
+                    <li><code>0x300</code>: Gear (0=P, 1=R, 2=N, 3=D)</li>
+                </ul>
+            </div>
+            <div class="can-input">
+                <input type="text" id="can-id" placeholder="ID (e.g. 0x100)" />
+                <input type="text" id="can-data" placeholder="Data (e.g. 45)" />
+                <button id="btn-send">Send CAN</button>
+            </div>
+            <div class="can-log" id="can-log">
+                <!-- Logs will appear here -->
+            </div>
+            <div class="connection-status" id="conn-status">Connecting...</div>
+        </div>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

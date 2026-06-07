@@ -1,0 +1,283 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Orbitron:wght@500;700&display=swap');
+
+:root {
+    --bg-color: #0f1115;
+    --panel-bg: rgba(25, 28, 36, 0.6);
+    --panel-border: rgba(255, 255, 255, 0.05);
+    --text-primary: #f0f0f0;
+    --text-secondary: #8b92a5;
+    --accent-blue: #00e5ff;
+    --accent-red: #ff3366;
+    --accent-green: #00ff88;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    background-image: radial-gradient(circle at 50% 0%, #1a1f2b 0%, var(--bg-color) 70%);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.dashboard {
+    display: grid;
+    grid-template-columns: 300px 1fr 350px;
+    grid-template-rows: 1fr;
+    gap: 20px;
+    width: 95vw;
+    height: 90vh;
+}
+
+.panel {
+    background: var(--panel-bg);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--panel-border);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+}
+
+h2 {
+    margin-top: 0;
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+}
+
+/* Controls Panel */
+.controls-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.steering-container {
+    text-align: center;
+}
+
+.steering-wheel {
+    width: 150px;
+    height: 150px;
+    border: 12px solid #333;
+    border-radius: 50%;
+    margin: 0 auto 15px auto;
+    position: relative;
+    transition: transform 0.2s ease-out;
+}
+.steering-wheel::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 12px;
+    background: #333;
+    transform: translateY(-50%);
+}
+.steering-wheel::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 12px;
+    height: 50%;
+    background: #333;
+    transform: translateX(-50%);
+}
+
+.pedal-bg {
+    width: 100%;
+    height: 20px;
+    background: #222;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.pedal-fill {
+    height: 100%;
+    width: 0%;
+    transition: width 0.2s ease-out;
+}
+
+.brake-fill {
+    background: linear-gradient(90deg, #ff3366, #ff6b6b);
+}
+
+.throttle-fill {
+    background: linear-gradient(90deg, #00ff88, #6bffb3);
+}
+
+.value-display {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+.value-display span {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-family: 'Orbitron', sans-serif;
+}
+
+/* Center Panel - HMI */
+.center-panel {
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.cluster-gauges {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    width: 100%;
+}
+
+.gauge {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: conic-gradient(from 180deg at 50% 50%, rgba(0, 229, 255, 0.1) 0deg, rgba(0, 229, 255, 0.4) 180deg, transparent 180deg);
+    border: 2px solid rgba(0, 229, 255, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+.gauge::before {
+    content: '';
+    position: absolute;
+    inset: 15px;
+    border-radius: 50%;
+    background: var(--bg-color);
+}
+
+.gauge-value {
+    position: relative;
+    z-index: 1;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--accent-blue);
+    text-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
+}
+
+.gauge-label {
+    position: relative;
+    z-index: 1;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.gear-display {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 4rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+/* CAN Panel */
+.can-panel {
+    display: flex;
+    flex-direction: column;
+}
+
+.can-list {
+    flex: 1;
+    overflow-y: auto;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+.can-list h3 {
+    color: var(--text-primary);
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+.can-list ul {
+    list-style: none;
+    padding: 0;
+}
+.can-list li {
+    margin-bottom: 8px;
+    padding: 8px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+}
+.can-list code {
+    color: var(--accent-blue);
+    font-family: monospace;
+}
+
+.can-input {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+.can-input input {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--panel-border);
+    color: var(--text-primary);
+    padding: 10px;
+    border-radius: 8px;
+    width: 50px;
+    flex: 1;
+    font-family: monospace;
+}
+.can-input button {
+    background: var(--accent-blue);
+    color: #000;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.can-input button:hover {
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
+}
+
+.can-log {
+    margin-top: 15px;
+    height: 120px;
+    background: rgba(0,0,0,0.4);
+    border-radius: 8px;
+    padding: 10px;
+    overflow-y: auto;
+    font-family: monospace;
+    font-size: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.log-entry {
+    color: var(--text-secondary);
+}
+.log-entry.tx {
+    color: var(--accent-green);
+}
+
+.connection-status {
+    margin-top: 15px;
+    font-size: 0.8rem;
+    text-align: center;
+    color: #ffaa00;
+}
+.connected {
+    color: var(--accent-green) !important;
+}

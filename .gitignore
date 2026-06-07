@@ -1,0 +1,17 @@
+# Build artifacts
+build/
+bin/
+lib/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.vs/
+*.suo
+*.user
